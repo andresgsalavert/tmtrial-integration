@@ -1,5 +1,13 @@
 # tmtrial-integration
 
+BASE DE DATOS:
+
+Requisito:
+* Mongo DB
+
+1.- Instalar Mongo DB siguiendo las instrucciones de la pagina.
+2.- Crear BD con el nombre "TOP" (Se puede realizar por la consola de Mongo o por medio del programa Mongo Chef).
+
 TOKEN DE FACEBOOK:
 
 Para que el integrador funcione y retorne informacion se debe obtener un token del API GRAPH de Facebook, pueden avisarme para enviarles el mio cuando vayan a probar o pueden crear una cuenta como developer y obtener un Token por medio del Explorador de la API Graph con todos los permisos. No puede quedar fijo ya que por seguridad FB expira los tokens y por eso la razon de tener que obtener uno al momento de probar ya que el previo habra vencido.
