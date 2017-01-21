@@ -4,7 +4,7 @@ TOKEN DE FACEBOOK:
 
 Para que el integrador funcione y retorne informacion se debe obtener un token del API GRAPH de Facebook, pueden avisarme para enviarles el mio cuando vayan a probar o pueden crear una cuenta como developer y obtener un Token por medio del Explorador de la API Graph con todos los permisos. No puede quedar fijo ya que por seguridad FB expira los tokens y por eso la razon de tener que obtener uno al momento de probar ya que el previo habra vencido.
 
-Una vez obtenido el token deben ir al directorio "../(raiz del proy)/src/main/resources/" y abrir el archivo "application.properties" y reemplazar el atributo de nombre "application.properties" por el token nuevo.
+Una vez obtenido el token deben ir al directorio "../(raiz del proyecto)/src/main/resources/" y abrir el archivo "application.properties" y reemplazar el atributo de nombre "application.properties" por el token nuevo.
 
 CORRER POR CONSOLA:
 
@@ -13,9 +13,9 @@ Requisitos: (Debe instalarse todo lo que se nombra a continuacion)
 * SDK 1.8
 * Maven (Ultima version)
 
-1.- Navegar por la consola hasta la carpeta raiz del del proyecto.
-2.- Podemos ejecutar el comando "mvn clean install" para recompilar y reempaquetar el proyecto.
-3.- Iniciamos el servlet container embedido de tomcat por medio de spring boot con el comando "mvn spring-boot:run"
+1.- Navegar por la consola hasta la carpeta raiz del del proyecto. /n
+2.- Podemos ejecutar el comando "mvn clean install" para recompilar y reempaquetar el proyecto. /n
+3.- Iniciamos el servlet container embedido de tomcat por medio de spring boot con el comando "mvn spring-boot:run" /n
 
 Una vez desplegado el integrador se vera por consola como deployed y podemos comenzar a usar el frontend Web una vez que configuremos el mismo.
 
