@@ -13,9 +13,9 @@ Requisitos: (Debe instalarse todo lo que se nombra a continuacion)
 * SDK 1.8
 * Maven (Ultima version)
 
-1.- Navegar por la consola hasta la carpeta raiz del del proyecto. /n
-2.- Podemos ejecutar el comando "mvn clean install" para recompilar y reempaquetar el proyecto. /n
-3.- Iniciamos el servlet container embedido de tomcat por medio de spring boot con el comando "mvn spring-boot:run" /n
+1.- Navegar por la consola hasta la carpeta raiz del del proyecto.
+2.- Podemos ejecutar el comando "mvn clean install" para recompilar y reempaquetar el proyecto.
+3.- Iniciamos el servlet container embedido de tomcat por medio de spring boot con el comando "mvn spring-boot:run"
 
 Una vez desplegado el integrador se vera por consola como deployed y podemos comenzar a usar el frontend Web una vez que configuremos el mismo.
 
