@@ -130,12 +130,6 @@ public class TrialService {
 	
         }
         
-          
-        private String getMethodName(String methodName, String att){
-            methodName += (methodName.contains("By") ? "And"+att.substring(0,1).toUpperCase()+att.substring(1) : "By"+att.substring(0,1).toUpperCase()+att.substring(1));
-            return methodName;
-        }
-        
         public List<Dataset> findAllSets(String type, String order, Date date, String pattern, String sort) {
        
             List<Dataset> datasets = new ArrayList();
