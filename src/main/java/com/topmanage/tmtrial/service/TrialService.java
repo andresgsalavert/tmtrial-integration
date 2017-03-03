@@ -6,12 +6,17 @@ import com.topmanage.tmtrial.models.Groups;
 import com.topmanage.tmtrial.models.Pages;
 import com.topmanage.tmtrial.models.Users;
 import com.topmanage.tmtrial.repository.DatasetRepository;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +26,9 @@ public class TrialService {
 
 	@Autowired
 	private DatasetRepository datasetsRepository;
+        
+        @Autowired
+        private MongoTemplate mongoTemplate;
 
 	public Dataset findUsersByName(String name, String fbToken) throws ParseException {
             
@@ -122,192 +130,60 @@ public class TrialService {
 	
         }
         
+          
+        private String getMethodName(String methodName, String att){
+            methodName += (methodName.contains("By") ? "And"+att.substring(0,1).toUpperCase()+att.substring(1) : "By"+att.substring(0,1).toUpperCase()+att.substring(1));
+            return methodName;
+        }
+        
         public List<Dataset> findAllSets(String type, String order, Date date, String pattern, String sort) {
        
             List<Dataset> datasets = new ArrayList();
+            String methodName = "find";
+            List<Object> obj = new ArrayList();
+            if (type != null){
+                methodName += (methodName.contains("By") ? "AndType" : "ByType");
+                obj.add(type);
+            }
+            if (pattern != null){
+                methodName += (methodName.contains("By") ? "AndPattern" : "ByPattern");
+                obj.add(pattern);
+            }
+            if (date != null){
+                methodName += (methodName.contains("By") ? "AndDate" : "ByDate");
+                obj.add(date);
+            }
+            if (sort != null)
+                methodName += "OrderBy"+sort.substring(0,1).toUpperCase()+sort.substring(1) + ((order == null) ? "" : order.substring(0,1)+order.substring(1).toLowerCase());
+            if (methodName.length() == 4)
+                methodName += "All";
             
-            if (order == null){
-                order = "ASC";
+            Class<?> params[] = new Class[obj.size()];
+            for (int i = 0; i < obj.size(); i++) {
+                if (obj.get(i) instanceof String) {
+                    params[i] = String.class;
+                }
+                // you can do additional checks for other data types if you want.
             }
             
-            if ((type != null) && (pattern != null) && (date != null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDate(type, pattern, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByTypeAsc(type, pattern, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByDateAsc(type, pattern, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByPatternAsc(type, pattern, date);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDate(type, pattern, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByTypeDesc(type, pattern, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByDateDesc(type, pattern, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndPatternAndDateOrderByPatternDesc(type, pattern, date);
-                    }
-                }
-            } else if ((type == null) && (pattern != null) && (date != null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByPatternAndDate(pattern, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByTypeAsc(pattern, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByDateAsc(pattern, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByPatternAsc(pattern, date);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByPatternAndDate(pattern, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByTypeDesc(pattern, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByDateDesc(pattern, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByPatternAndDateOrderByPatternDesc(pattern, date);
-                    }
-                }
-            } else if ((type != null) && (pattern == null) && (date != null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndDate(type, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByTypeAsc(type, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByDateAsc(type, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByPatternAsc(type, date);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndDate(type, date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByTypeDesc(type, date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByDateDesc(type, date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndDateOrderByPatternDesc(type, date);
-                    }
-                }
-            } else if ((type != null) && (pattern != null) && (date == null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndPattern(type, pattern);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByTypeAsc(type, pattern);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByDateAsc(type, pattern);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByPatternAsc(type, pattern);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByTypeAndPattern(type, pattern);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByTypeDesc(type, pattern);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByDateDesc(type, pattern);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeAndPatternOrderByPatternDesc(type, pattern);
-                    }
-                }
-            } else if ((type != null) && (pattern == null) && (date == null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByType(type);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeOrderByTypeAsc(type);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeOrderByDateAsc(type);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeOrderByPatternAsc(type);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByType(type);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByTypeOrderByTypeDesc(type);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByTypeOrderByDateDesc(type);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByTypeOrderByPatternDesc(type);
-                    }
-                }
-            } else if ((type == null) && (pattern != null) && (date == null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByPattern(pattern);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByPatternOrderByTypeAsc(pattern);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByPatternOrderByDateAsc(pattern);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByPatternOrderByPatternAsc(pattern);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByPattern(pattern);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByPatternOrderByTypeDesc(pattern);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByPatternOrderByDateDesc(pattern);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByPatternOrderByPatternDesc(pattern);
-                    }
-                }
-            } else if ((type == null) && (pattern == null) && (date != null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByDate(date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByDateOrderByTypeAsc(date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByDateOrderByDateAsc(date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByDateOrderByPatternAsc(date);
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = datasetsRepository.findByDate(date);
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findByDateOrderByTypeDesc(date);
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findByDateOrderByDateDesc(date);
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findByDateOrderByPatternDesc(date);
-                    }
-                }
-            } else if ((type == null) && (pattern == null) && (date == null)){
-                if (order.equals("ASC")){
-                    if (sort == null){
-                        datasets = (List<Dataset>) datasetsRepository.findAll();
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findAllByOrderByTypeAsc();
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findAllByOrderByDateAsc();
-                    } else if (sort.equals("pattern")){
-                        datasets = datasetsRepository.findAllByOrderByPatternAsc();
-                    }
-                } else if (order.equals("DESC")){
-                    if (sort == null){
-                        datasets = (List<Dataset>) datasetsRepository.findAll();
-                    } else if (sort.equals("type")){
-                        datasets = datasetsRepository.findAllByOrderByTypeDesc();
-                    } else if (sort.equals("date")){
-                        datasets = datasetsRepository.findAllByOrderByDateDesc();
-                    } else if ((sort.equals("pattern")) || (sort == null)){
-                        datasets = datasetsRepository.findAllByOrderByPatternDesc();
-                    }
-                }
-            }
+            String[] args = new String[obj.size()];
+            args = obj.toArray(args); 
             
+            try {
+                Method method = datasetsRepository.getClass().getDeclaredMethod(methodName, params);
+                datasets = (List<Dataset>) method.invoke(datasetsRepository, args);
+            } catch (NoSuchMethodException ex) {
+                Logger.getLogger(TrialService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SecurityException ex) {
+                Logger.getLogger(TrialService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger.getLogger(TrialService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalArgumentException ex) {
+                Logger.getLogger(TrialService.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(TrialService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+          
             return datasets;
 	
         }
